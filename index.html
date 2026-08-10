@@ -24,53 +24,26 @@
   }
 
   /* ============ TOKENS ============ */
+  /* Navy is the house look now — a deliberate default, not a dark-mode
+     fallback. The "Bright" alternate (data-theme="light") is still there
+     for anyone who wants it, via the toggle. */
   :root{
-    --canvas:#F7F9F4; --surface:#FFFFFF; --surface-2:#F1F4EE;
-    --ink:#16212B; --ink-muted:#5B6B70; --ink-faint:#94A19B;
-    --line:#E1E7DE; --line-strong:#C9D2C4;
-    --brand:#F0A202; --brand-deep:#B97900; --brand-soft:#FCE8BC; --brand-ink:#5C3B00;
-    --realestate:#B04A24; --realestate-soft:#F3DED2;
-    --finance:#146B49; --finance-soft:#D3E9DF;
-    --auto:#2E5C7A; --auto-soft:#DCE6EC;
-    --bar:#5B3E6B; --bar-soft:#E7DEEA;
-    --success:#2F9E58; --success-soft:#DFF1E4;
-    --danger:#C6432F; --danger-soft:#FBE0DD;
-    --shadow-sm:0 1px 2px rgba(22,33,43,.07);
-    --shadow-md:0 10px 28px -14px rgba(22,33,43,.28), 0 2px 6px rgba(22,33,43,.06);
+    --canvas:#141A2E; --surface:#1E2742; --surface-2:#242F52;
+    --ink:#EDF1F7; --ink-muted:#9AA3C0; --ink-faint:#6B7396;
+    --line:#2A3352; --line-strong:#3B4568;
+    --brand:#F5B23A; --brand-deep:#FFCE73; --brand-soft:#3A2C10; --brand-ink:#FFE3A8;
+    --realestate:#E67E3D; --realestate-soft:#3D2A1C;
+    --finance:#23B67D; --finance-soft:#123326;
+    --auto:#38A8DA; --auto-soft:#16303D;
+    --bar:#9B7FE0; --bar-soft:#2C2450;
+    --success:#4ADE80; --success-soft:#123324;
+    --danger:#F2786C; --danger-soft:#3B1B18;
+    --shadow-sm:0 1px 2px rgba(0,0,0,.4);
+    --shadow-md:0 16px 32px -16px rgba(0,0,0,.6), 0 2px 6px rgba(0,0,0,.4);
     --radius-s:7px; --radius-m:12px;
     --font-display:'Big Shoulders', 'Arial Narrow', sans-serif;
     --font-body:'Karla', -apple-system, sans-serif;
     --font-mono:'IBM Plex Mono', 'SF Mono', monospace;
-  }
-  @media (prefers-color-scheme: dark){
-    :root{
-      --canvas:#10161A; --surface:#181F26; --surface-2:#1E2830;
-      --ink:#EDF2EF; --ink-muted:#9FB2AC; --ink-faint:#5B6D67;
-      --line:#28343A; --line-strong:#39474E;
-      --brand:#F5B23A; --brand-deep:#FFCE73; --brand-soft:#3A2C10; --brand-ink:#FFE3A8;
-      --realestate:#E38058; --realestate-soft:#3A2419;
-      --finance:#49C393; --finance-soft:#12332A;
-      --auto:#79ABCE; --auto-soft:#1C2E3A;
-      --bar:#B79BC4; --bar-soft:#2C2233;
-      --success:#54CB8F; --success-soft:#123324;
-      --danger:#F0897C; --danger-soft:#3B1B18;
-      --shadow-sm:0 1px 2px rgba(0,0,0,.4);
-      --shadow-md:0 16px 32px -16px rgba(0,0,0,.6), 0 2px 6px rgba(0,0,0,.4);
-    }
-  }
-  :root[data-theme="dark"]{
-    --canvas:#10161A; --surface:#181F26; --surface-2:#1E2830;
-    --ink:#EDF2EF; --ink-muted:#9FB2AC; --ink-faint:#5B6D67;
-    --line:#28343A; --line-strong:#39474E;
-    --brand:#F5B23A; --brand-deep:#FFCE73; --brand-soft:#3A2C10; --brand-ink:#FFE3A8;
-    --realestate:#E38058; --realestate-soft:#3A2419;
-    --finance:#49C393; --finance-soft:#12332A;
-    --auto:#79ABCE; --auto-soft:#1C2E3A;
-    --bar:#B79BC4; --bar-soft:#2C2233;
-    --success:#54CB8F; --success-soft:#123324;
-    --danger:#F0897C; --danger-soft:#3B1B18;
-    --shadow-sm:0 1px 2px rgba(0,0,0,.4);
-    --shadow-md:0 16px 32px -16px rgba(0,0,0,.6), 0 2px 6px rgba(0,0,0,.4);
   }
   :root[data-theme="light"]{
     --canvas:#F7F9F4; --surface:#FFFFFF; --surface-2:#F1F4EE;
@@ -103,7 +76,7 @@
   .wordmark{display:flex;align-items:baseline;gap:2px;font-family:var(--font-display);font-weight:800;font-size:1.5rem;letter-spacing:.01em;white-space:nowrap;cursor:pointer;}
   .wordmark .app{color:var(--ink);}
   .wordmark .academy{color:var(--brand-deep);}
-  .wordmark-mark{width:30px;height:30px;border-radius:8px;background:var(--ink);display:grid;place-items:center;margin-right:8px;flex:none;}
+  .wordmark-mark{width:30px;height:30px;border-radius:8px;background:#161B2E;display:grid;place-items:center;margin-right:8px;flex:none;}
   .wordmark-mark svg{width:16px;height:16px;display:block;}
   .crumb{color:var(--ink-faint);font-size:.9rem;display:flex;align-items:center;gap:8px;margin-right:auto;min-width:0;}
   .crumb .sep{opacity:.6;}
@@ -2417,13 +2390,18 @@ function checkAnswer(el, isCorrect){
 function completeLesson(){ advanceAfterComplete(); }
 
 /* =====================================================================
-   THEME TOGGLE
+   THEME TOGGLE — Navy (default, no attribute) <-> Bright (data-theme="light")
    ===================================================================== */
 const root = document.documentElement;
+const THEME_KEY = 'appacademy_theme_v1';
+function applyTheme(t){
+  if(t === 'light') root.setAttribute('data-theme','light'); else root.removeAttribute('data-theme');
+}
+applyTheme(localStorage.getItem(THEME_KEY));
 document.getElementById('themeToggle').addEventListener('click', ()=>{
-  const cur = root.getAttribute('data-theme');
-  const next = cur === 'dark' ? 'light' : (cur === 'light' ? null : 'dark');
-  if(next) root.setAttribute('data-theme', next); else root.removeAttribute('data-theme');
+  const next = root.getAttribute('data-theme') === 'light' ? 'navy' : 'light';
+  localStorage.setItem(THEME_KEY, next);
+  applyTheme(next);
 });
 
 /* =====================================================================
