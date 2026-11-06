@@ -1,0 +1,1123 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Trade Tutor</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@800&family=IBM+Plex+Mono:wght@500&family=Karla:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    color-scheme:light;
+    --canvas:#F7F9F4; --surface:#FFFFFF; --surface-2:#F1F4EE;
+    --ink:#16212B; --muted:#5B6B70; --faint:#94A19B;
+    --line:#E1E7DE; --line-strong:#C9D2C4;
+    --brand:#F0A202; --brand-deep:#B97900; --brand-soft:#FCE8BC; --brand-ink:#5C3B00;
+    --success:#2F9E58; --success-soft:#DFF1E4;
+    --danger:#C6432F; --danger-soft:#FBE0DD;
+    --font-display:'Big Shoulders Display','Arial Narrow',sans-serif;
+    --font-body:'Karla',-apple-system,'Segoe UI',sans-serif;
+    --font-mono:'IBM Plex Mono','SF Mono',ui-monospace,monospace;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      color-scheme:dark;
+      --canvas:#141A2E; --surface:#1E2742; --surface-2:#242F52;
+      --ink:#EDF1F7; --muted:#9AA3C0; --faint:#6B7396;
+      --line:#2A3352; --line-strong:#3B4568;
+      --brand:#F5B23A; --brand-deep:#FFCE73; --brand-soft:#3A2C10; --brand-ink:#FFE3A8;
+      --success:#4ADE80; --success-soft:#123324;
+      --danger:#F2786C; --danger-soft:#3B1B18;
+    }
+  }
+  :root[data-theme="dark"]{
+    color-scheme:dark;
+    --canvas:#141A2E; --surface:#1E2742; --surface-2:#242F52;
+    --ink:#EDF1F7; --muted:#9AA3C0; --faint:#6B7396;
+    --line:#2A3352; --line-strong:#3B4568;
+    --brand:#F5B23A; --brand-deep:#FFCE73; --brand-soft:#3A2C10; --brand-ink:#FFE3A8;
+    --success:#4ADE80; --success-soft:#123324;
+    --danger:#F2786C; --danger-soft:#3B1B18;
+  }
+
+  *{box-sizing:border-box}
+  :root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+  html{scroll-padding-top:env(safe-area-inset-top,0px);-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--canvas);color:var(--ink);font-family:var(--font-body);font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased}
+  body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--surface);z-index:10}
+  button{font:inherit;color:inherit}
+  :focus-visible{outline:2.5px solid var(--brand);outline-offset:2px;border-radius:6px}
+
+  .app{max-width:640px;margin:0 auto}
+  .top{position:sticky;top:env(safe-area-inset-top,0px);z-index:11;background:var(--surface);border-bottom:1px solid var(--line);padding:12px 16px 0}
+  .top-row{display:flex;align-items:center;justify-content:space-between;gap:12px}
+  h1{margin:0;font-family:var(--font-display);font-weight:800;font-size:1.8rem;letter-spacing:.01em;line-height:1.05}
+  .sub{margin:2px 0 0;color:var(--muted);font-size:.85rem}
+  .pill{display:inline-block;font-family:var(--font-mono);font-size:.64rem;letter-spacing:.06em;text-transform:uppercase;padding:3px 9px;border-radius:99px;background:var(--surface-2);color:var(--muted);white-space:nowrap}
+  .pill.mock,.pill.open{background:var(--brand-soft);color:var(--brand-ink)}
+  .pill.win{background:var(--success-soft);color:var(--success)}
+  .pill.loss{background:var(--danger-soft);color:var(--danger)}
+  .tabs{display:flex;gap:4px;margin-top:8px}
+  .tab{flex:1;padding:10px 4px;border:0;background:none;color:var(--muted);font-weight:700;border-bottom:3px solid transparent;cursor:pointer}
+  .tab.on{color:var(--ink);border-bottom-color:var(--brand)}
+  .count{font-family:var(--font-mono);font-size:.72rem;color:var(--faint)}
+
+  .panel{display:none;padding:16px}
+  .panel.on{display:block}
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:14px}
+  .card h2{margin:0 0 4px;font-size:1.02rem;font-family:var(--font-body)}
+  .hint{color:var(--muted);font-size:.86rem;margin:0 0 12px}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .field{margin-bottom:0}
+  .field label{display:block;font-size:.78rem;font-weight:700;color:var(--muted);margin-bottom:4px}
+  input[type=text],textarea{width:100%;font:inherit;font-size:16px;padding:11px 12px;border-radius:10px;border:1.5px solid var(--line-strong);background:var(--canvas);color:var(--ink)}
+  textarea{resize:vertical;min-height:64px}
+  input[type=text]::placeholder,textarea::placeholder{color:var(--faint)}
+
+  .btn{font-weight:700;padding:12px 16px;border-radius:10px;border:0;cursor:pointer;background:var(--ink);color:var(--canvas)}
+  .btn.brand{background:var(--brand);color:#1a1200}
+  .btn.alt{background:var(--surface-2);color:var(--ink);border:1px solid var(--line-strong)}
+  .btn.small{padding:8px 12px;font-size:.85rem}
+  .btn[disabled]{opacity:.45;cursor:not-allowed}
+  .row{display:flex;gap:8px;flex-wrap:wrap}
+
+  .banner{border-radius:12px;padding:12px 14px;margin-bottom:14px;background:var(--danger-soft);color:var(--ink);border:1px solid var(--danger)}
+  .banner b{color:var(--danger)}
+
+  .verdict{border-radius:12px;padding:14px 16px;margin-bottom:4px}
+  .verdict h3{margin:0 0 2px;font-family:var(--font-display);font-weight:800;font-size:1.5rem;letter-spacing:.01em}
+  .verdict p{margin:0;font-size:.92rem}
+  .verdict.fail{background:var(--danger-soft)} .verdict.fail h3{color:var(--danger)}
+  .verdict.almost{background:var(--brand-soft)} .verdict.almost h3{color:var(--brand-ink)}
+  .verdict.complete{background:var(--success-soft)} .verdict.complete h3{color:var(--success)}
+
+  .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 0 4px}
+  .stat{background:var(--surface-2);border-radius:10px;padding:10px;min-width:0}
+  .stat .l{font-size:.64rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+  .stat .v{font-family:var(--font-mono);font-weight:500;font-size:1rem;overflow-wrap:anywhere}
+  .stat .s{font-size:.7rem;color:var(--faint)}
+
+  .chk{display:flex;gap:10px;padding:10px 0;border-top:1px solid var(--line)}
+  .chk:first-child{border-top:0}
+  .ic{flex:none;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font-size:.72rem;font-weight:800;margin-top:1px}
+  .ic.pass{background:var(--success-soft);color:var(--success)}
+  .ic.warn{background:var(--brand-soft);color:var(--brand-deep)}
+  .ic.fail{background:var(--danger-soft);color:var(--danger)}
+  .ic.info{background:var(--surface-2);color:var(--muted)}
+  .chk b{display:block;font-size:.95rem}
+  .chk p{margin:2px 0 0;color:var(--muted);font-size:.86rem}
+
+  .tick{display:flex;gap:10px;align-items:flex-start;padding:8px 0;font-size:.95rem;cursor:pointer}
+  .tick input{flex:none;width:20px;height:20px;margin:2px 0 0;accent-color:var(--brand)}
+
+  .ai-out{white-space:pre-wrap;background:var(--surface-2);border-radius:10px;padding:12px;margin-top:12px;font-size:.95rem;overflow-wrap:anywhere}
+  .ai-out[hidden],[hidden]{display:none !important}
+
+  .jstats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:8px}
+  .jcard{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:12px}
+  .j-head{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px}
+  .j-head strong{font-family:var(--font-mono);font-weight:500;font-size:1.05rem}
+  .j-date{margin-left:auto;color:var(--faint);font-size:.78rem}
+  .j-line{font-size:.9rem;color:var(--muted);margin:2px 0}
+  .j-line b{color:var(--ink);font-weight:700}
+  .j-note{background:var(--surface-2);border-radius:10px;padding:10px;margin-top:8px;font-size:.9rem;white-space:pre-wrap;overflow-wrap:anywhere}
+  .copybox{margin-top:8px;font-family:var(--font-mono);font-size:13px}
+
+  .rules{margin:0;padding:0;list-style:none;counter-reset:r}
+  .rules li{counter-increment:r;display:flex;gap:12px;padding:12px 0;border-top:1px solid var(--line)}
+  .rules li:first-child{border-top:0}
+  .rules li::before{content:counter(r);flex:none;width:26px;height:26px;border-radius:8px;background:var(--brand-soft);color:var(--brand-ink);display:grid;place-items:center;font-family:var(--font-mono);font-size:.8rem}
+  .rules b{display:block}
+  .rules span{color:var(--muted);font-size:.88rem}
+  .foot{color:var(--faint);font-size:.78rem;text-align:center;padding:4px 16px 28px}
+  .empty{color:var(--muted);text-align:center;padding:28px 12px}
+  select{width:100%;font:inherit;font-size:16px;padding:11px 12px;border-radius:10px;border:1.5px solid var(--line-strong);background:var(--canvas);color:var(--ink)}
+  .sum{cursor:pointer;font-weight:700;font-size:1.02rem;list-style:none}
+  details>summary::-webkit-details-marker{display:none}
+  .sum::after{content:"+";float:right;color:var(--muted)}
+  details[open]>.sum::after{content:"\2212"}
+  .learn{margin-top:6px}
+  .learn summary{cursor:pointer;color:var(--brand-deep);font-size:.82rem;font-weight:700;list-style:none}
+  .learn summary::-webkit-details-marker{display:none}
+  .learn p{margin:4px 0 0}
+  .profile{background:var(--surface-2);border-left:4px solid var(--success);border-radius:10px;padding:12px;margin:12px 0 4px}
+  .profile.penny{border-left-color:var(--brand)}
+  .profile.high{border-left-color:var(--danger)}
+  .profile p{margin:6px 0 0;font-size:.88rem;color:var(--muted)}
+  .chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+  .chip{font-size:.74rem;padding:3px 9px;border-radius:99px;background:var(--surface);color:var(--ink);border:1px solid var(--line-strong)}
+  .gl{margin:0}
+  .gl dt{font-weight:700;margin-top:12px}
+  .gl dt:first-child{margin-top:0}
+  .gl dd{margin:2px 0 0;color:var(--muted);font-size:.9rem}
+  .mono{font-family:var(--font-mono);font-weight:500}
+  .split-row{display:flex;justify-content:space-between;align-items:baseline;gap:10px;padding:9px 0;border-top:1px solid var(--line)}
+  .split-row:first-child{border-top:0}
+  @media (max-width:380px){ .stats,.jstats{grid-template-columns:1fr 1fr} }
+  @media (prefers-reduced-motion: reduce){*{transition:none !important;animation:none !important}}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="top">
+    <div class="top-row">
+      <div>
+        <h1>Trade Tutor</h1>
+        <p class="sub">Plan check, rule guard, and journal</p>
+      </div>
+      <span class="pill mock">Mock mode</span>
+    </div>
+    <nav class="tabs" role="tablist" aria-label="Sections">
+      <button type="button" class="tab on" data-tab="plan" role="tab" aria-selected="true">Plan</button>
+      <button type="button" class="tab" data-tab="journal" role="tab" aria-selected="false">Journal <span id="jcount" class="count"></span></button>
+      <button type="button" class="tab" data-tab="goals" role="tab" aria-selected="false">Goals</button>
+      <button type="button" class="tab" data-tab="rules" role="tab" aria-selected="false">Rules</button>
+    </nav>
+  </header>
+
+  <main>
+    <!-- ================= PLAN ================= -->
+    <section id="tab-plan" class="panel on" role="tabpanel">
+      <div id="guard" class="banner" hidden></div>
+
+      <div class="card">
+        <h2>Your account</h2>
+        <p class="hint">Use your paper (practice) account size.</p>
+        <div class="grid2">
+          <div class="field"><label for="f-account">Account size ($)</label>
+            <input type="text" id="f-account" data-key="account" inputmode="decimal" autocomplete="off" placeholder="e.g. 3000"></div>
+          <div class="field"><label for="f-risk">Risk per trade (%)</label>
+            <input type="text" id="f-risk" data-key="risk" inputmode="decimal" autocomplete="off" placeholder="1"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>The trade</h2>
+        <p class="hint">Long trades only: you make money if the price rises.</p>
+        <div class="grid2">
+          <div class="field"><label for="f-ticker">Ticker</label>
+            <input type="text" id="f-ticker" data-key="ticker" maxlength="6" autocomplete="off" autocapitalize="characters" placeholder="e.g. ABCD"></div>
+          <div class="field"><label for="f-entry">Entry price ($)</label>
+            <input type="text" id="f-entry" data-key="entry" inputmode="decimal" autocomplete="off" placeholder="1.50"></div>
+          <div class="field"><label for="f-stop">Stop price ($)</label>
+            <input type="text" id="f-stop" data-key="stop" inputmode="decimal" autocomplete="off" placeholder="1.35"></div>
+          <div class="field"><label for="f-target">Target price ($)</label>
+            <input type="text" id="f-target" data-key="target" inputmode="decimal" autocomplete="off" placeholder="1.95"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Market check <span class="count">(optional, but worth it)</span></h2>
+        <p class="hint">Look these up in your broker app. The tutor uses them to check the spread and whether you could exit.</p>
+        <div class="grid2">
+          <div class="field"><label for="f-bid">Bid ($)</label>
+            <input type="text" id="f-bid" data-key="bid" inputmode="decimal" autocomplete="off" placeholder="1.48"></div>
+          <div class="field"><label for="f-ask">Ask ($)</label>
+            <input type="text" id="f-ask" data-key="ask" inputmode="decimal" autocomplete="off" placeholder="1.52"></div>
+          <div class="field"><label for="f-adv">Avg daily volume (shares)</label>
+            <input type="text" id="f-adv" data-key="adv" inputmode="numeric" autocomplete="off" placeholder="250000"></div>
+          <div class="field"><label for="f-shares">Shares you plan to buy</label>
+            <input type="text" id="f-shares" data-key="shares" inputmode="numeric" autocomplete="off" placeholder="blank = use max"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <details open>
+          <summary class="sum">About the company <span class="count">(optional, 1 minute)</span></summary>
+          <p class="hint" style="margin-top:8px">These answers help the tutor spot a penny stock by how it behaves, not just its price.</p>
+          <div class="grid2">
+            <div class="field"><label for="f-venue">Where it trades</label>
+              <select id="f-venue" data-key="venue">
+                <option value="">Select&hellip;</option>
+                <option value="exch">Nasdaq or NYSE</option>
+                <option value="amex">NYSE American</option>
+                <option value="otcup">OTCQX or OTCQB</option>
+                <option value="otclow">OTC Pink or Expert Market</option>
+                <option value="unsure">I&rsquo;m not sure</option>
+              </select></div>
+            <div class="field"><label for="f-mcap">Market cap ($ millions)</label>
+              <input type="text" id="f-mcap" data-key="mcap" inputmode="decimal" autocomplete="off" placeholder="e.g. 85"></div>
+            <div class="field"><label for="f-filings">Recent SEC filings?</label>
+              <select id="f-filings" data-key="filings">
+                <option value="">Select&hellip;</option>
+                <option value="yes">Yes, within the last year</option>
+                <option value="no">No recent filings</option>
+                <option value="unchecked">Haven&rsquo;t checked yet</option>
+              </select></div>
+            <div class="field"><label for="f-move">Today&rsquo;s move (%)</label>
+              <input type="text" id="f-move" data-key="move" inputmode="decimal" autocomplete="off" placeholder="e.g. 12 or -8"></div>
+            <div class="field" style="grid-column:1 / -1"><label for="f-cat">What&rsquo;s driving it?</label>
+              <select id="f-cat" data-key="cat">
+                <option value="">Select&hellip;</option>
+                <option value="verified">Verified news (a filing or official release)</option>
+                <option value="none">No news I can find</option>
+                <option value="hype">Only social media, tips, or hype</option>
+              </select></div>
+          </div>
+        </details>
+      </div>
+
+      <div id="results" aria-live="polite"></div>
+      <div id="ticket"></div>
+      <div id="checklist"></div>
+
+      <div class="card" id="saveCard">
+        <h2>Log it</h2>
+        <p class="hint" id="saveMsg"></p>
+        <div class="row">
+          <button type="button" class="btn brand" id="btnSave">Save plan to journal</button>
+          <button type="button" class="btn alt" id="btnForce" hidden>Log anyway as a rule break</button>
+        </div>
+      </div>
+
+      <div class="card" id="aiCard">
+        <h2>Ask the tutor</h2>
+        <p class="hint" id="aiHint">Connecting the AI coach&hellip;</p>
+        <div id="aiControls" hidden>
+          <button type="button" class="btn alt" id="btnCoach">Coach my plan</button>
+          <div class="field" style="margin-top:14px">
+            <label for="aiQ">Or ask a question</label>
+            <textarea id="aiQ" rows="2" placeholder="e.g. Why does the spread matter on a cheap stock?"></textarea>
+          </div>
+          <button type="button" class="btn alt" id="btnAsk" style="margin-top:8px">Ask</button>
+        </div>
+        <div id="aiOut" class="ai-out" hidden></div>
+      </div>
+    </section>
+
+    <!-- ================= JOURNAL ================= -->
+    <section id="tab-journal" class="panel" role="tabpanel">
+      <div class="card">
+        <h2>Your results</h2>
+        <p class="hint">Closed mock trades only. Stays on this device.</p>
+        <div class="jstats" id="jstats"></div>
+      </div>
+      <div id="journalList"></div>
+    </section>
+
+    <!-- ================= GOALS ================= -->
+    <section id="tab-goals" class="panel" role="tabpanel">
+      <div class="card">
+        <h2>Ready for real money?</h2>
+        <p class="hint">Your own numbers, from the closed practice trades in your Journal. Passing means your rules say you can start small. It doesn&rsquo;t mean you will win. Trade Tutor stays in mock mode for now.</p>
+        <div id="readyBody"></div>
+      </div>
+
+      <div class="card">
+        <h2>Split your winnings</h2>
+        <p class="hint">Decide where profit goes before you earn it. Only profit gets split. Never pull money out of the account to cover a losing month.</p>
+        <div class="grid2">
+          <div class="field" style="grid-column:1 / -1"><label for="s-profit">This month&rsquo;s profit ($)</label>
+            <input type="text" id="s-profit" data-split="profit" inputmode="decimal" autocomplete="off" placeholder="e.g. 200">
+            <button type="button" class="btn alt small" id="btnJProfit" style="margin-top:8px">Use my journal total for this month</button></div>
+          <div class="field"><label for="s-tax">Taxes (%)</label>
+            <input type="text" id="s-tax" data-split="tax" inputmode="decimal" autocomplete="off"></div>
+          <div class="field"><label for="s-trade">Keep trading (%)</label>
+            <input type="text" id="s-trade" data-split="trade" inputmode="decimal" autocomplete="off"></div>
+          <div class="field"><label for="s-long">Long-term stocks (%)</label>
+            <input type="text" id="s-long" data-split="long" inputmode="decimal" autocomplete="off"></div>
+          <div class="field"><label for="s-proj">Projects (%)</label>
+            <input type="text" id="s-proj" data-split="proj" inputmode="decimal" autocomplete="off"></div>
+        </div>
+        <div id="splitOut"></div>
+        <button type="button" class="btn brand" id="btnSplitSave" style="margin-top:12px">Save my split</button>
+      </div>
+
+      <div class="card">
+        <h2>What could it look like?</h2>
+        <p class="hint">A what-if, not a forecast. Most traders lose money, and many months are negative.</p>
+        <div class="grid2">
+          <div class="field"><label for="w-acct">Account size ($)</label>
+            <input type="text" id="w-acct" data-what="acct" inputmode="decimal" autocomplete="off" placeholder="uses your Plan account"></div>
+          <div class="field"><label for="w-ret">Return per month (%)</label>
+            <input type="text" id="w-ret" data-what="ret" inputmode="decimal" autocomplete="off"></div>
+          <div class="field" style="grid-column:1 / -1"><label for="w-dep">Money you add each month ($)</label>
+            <input type="text" id="w-dep" data-what="dep" inputmode="decimal" autocomplete="off" placeholder="0"></div>
+        </div>
+        <div id="whatifOut"></div>
+      </div>
+    </section>
+
+    <!-- ================= RULES ================= -->
+    <section id="tab-rules" class="panel" role="tabpanel">
+      <div class="card">
+        <h2>The nine rules</h2>
+        <p class="hint">These come from the Market Kings risk lessons and the Penny Stocks &amp; Small Caps module. The tutor checks your plan against them.</p>
+        <ol class="rules">
+          <li><div><b>Risk 1% or less per trade</b><span>Many traders use 0.5% to 1% on penny stocks.</span></div></li>
+          <li><div><b>No stop, no trade</b><span>Pick the price that proves you wrong before you enter.</span></div></li>
+          <li><div><b>Reward at least twice the risk</b><span>Below 1:2, you need to win far too often to come out ahead.</span></div></li>
+          <li><div><b>No tips</b><span>If a promoter found you, you may be the exit.</span></div></li>
+          <li><div><b>Check the spread and the volume first</b><span>A wide spread is a cost. Thin volume can trap you.</span></div></li>
+          <li><div><b>Limit orders, not market orders</b><span>In a thin stock a market order can fill far from the last price.</span></div></li>
+          <li><div><b>Never average down</b><span>Adding to a loser turns a small loss into a big one.</span></div></li>
+          <li><div><b>Two losses in a day: stop for the day</b><span>Write down what happened instead of trading to win it back.</span></div></li>
+          <li><div><b>Practice first, and expect worse fills in real life</b><span>Simulators are kinder than thin real markets.</span></div></li>
+        </ol>
+      </div>
+      <div class="card">
+        <h2>Plain-English words</h2>
+        <p class="hint">Tap through these when a word on the Plan tab is new.</p>
+        <dl class="gl">
+          <dt>Thin trading</dt><dd>Few shares trade and few people are waiting to buy or sell. Prices jump around, the spread is wide, and your own order can move the price. You may not be able to sell when you want to.</dd>
+          <dt>Bid and ask</dt><dd>The bid is the most buyers will pay right now. The ask is the least sellers will accept. You buy at the ask and sell at the bid.</dd>
+          <dt>Spread</dt><dd>The gap between the bid and the ask. It&rsquo;s a cost you pay every time you buy and then sell.</dd>
+          <dt>Volume</dt><dd>How many shares changed hands. Average daily volume shows how easy a stock is to get in and out of.</dd>
+          <dt>Market cap</dt><dd>Share price times shares outstanding: the company&rsquo;s total value on the market.</dd>
+          <dt>Float</dt><dd>The shares available for the public to trade. A small float can mean fast, violent price moves.</dd>
+          <dt>Dilution</dt><dd>A company issuing new shares, which makes each existing share a smaller slice of the company.</dd>
+          <dt>Limit order</dt><dd>An order that only fills at your price or better.</dd>
+          <dt>Stop order</dt><dd>An order that triggers when the price falls to your stop. It can fill lower if the stock gaps.</dd>
+          <dt>Gap</dt><dd>When a stock opens far above or below where it closed. A stop can&rsquo;t protect you from a gap.</dd>
+          <dt>Catalyst</dt><dd>A specific, verifiable event, like an earnings report or a signed contract, that could move the price.</dd>
+        </dl>
+      </div>
+      <div class="card">
+        <h2>What this tool will never do</h2>
+        <p class="hint" style="margin:0">It won&rsquo;t tell you to buy, sell, or hold. It won&rsquo;t predict a price. It checks your plan against your own rules and helps you learn from the result. Real-trade plan checks are planned for later.</p>
+      </div>
+    </section>
+  </main>
+  <p class="foot">Educational only, not financial advice. You enter every price yourself; nothing here pulls live quotes.</p>
+</div>
+
+<script>
+(function(){
+"use strict";
+
+var KEY_J="trade_tutor_journal_v1", KEY_I="trade_tutor_inputs_v1";
+function safeGet(k){ try{ return window.localStorage.getItem(k); }catch(e){ return null; } }
+function safeSet(k,v){ try{ window.localStorage.setItem(k,v); }catch(e){} }
+function parse(s,fb){ try{ var v=JSON.parse(s); return v==null?fb:v; }catch(e){ return fb; } }
+
+var state={
+  tab:"plan",
+  inputs:{account:"",risk:"1",ticker:"",entry:"",stop:"",target:"",bid:"",ask:"",adv:"",shares:"",venue:"",mcap:"",filings:"",move:"",cat:""},
+  checks:{},
+  journal:[],
+  plan:null,
+  openClose:null,
+  confirmDel:null,
+  sample:null,
+  ctl:null,
+  listKey:null,
+  money:false,
+  split:{profit:"",tax:"25",trade:"25",long:"25",proj:"25",saved:false},
+  what:{acct:"",ret:"2",dep:"0"}
+};
+(function load(){
+  var saved=parse(safeGet(KEY_I),null);
+  if(saved&&typeof saved==="object"){ for(var k in state.inputs){ if(typeof saved[k]==="string"){ state.inputs[k]=saved[k]; } } }
+  var j=parse(safeGet(KEY_J),[]);
+  if(Array.isArray(j)){ state.journal=j; }
+})();
+function saveInputs(){ safeSet(KEY_I,JSON.stringify(state.inputs)); }
+function saveJournal(){ safeSet(KEY_J,JSON.stringify(state.journal)); }
+
+/* ---------- helpers ---------- */
+function $(id){ return document.getElementById(id); }
+function esc(s){ return String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+function num(v){ var x=parseFloat(String(v==null?"":v).replace(/[$,\s]/g,"")); return isFinite(x)?x:NaN; }
+function money(x){ var neg=x<0; var s="$"+Math.abs(x).toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2}); return neg?"-"+s:s; }
+function price(x){ return "$"+(x>=1?x.toFixed(2):x.toFixed(4)); }
+function pc(x,d){ return x.toFixed(d==null?1:d)+"%"; }
+function cleanTicker(t){ return String(t||"").toUpperCase().replace(/[^A-Z0-9.\-]/g,"").slice(0,6); }
+function fmtDate(iso){ try{ return new Date(iso).toLocaleDateString("en-US",{month:"short",day:"numeric"}); }catch(e){ return ""; } }
+function typo(s){
+  return String(s)
+    .replace(/\*\*/g,"")
+    .replace(/(\w)'(\w)/g,"$1\u2019$2")
+    .replace(/(^|[\s(\[{\u2014-])"/g,"$1\u201C").replace(/"/g,"\u201D")
+    .replace(/(^|[\s(\[{\u2014-])'/g,"$1\u2018").replace(/'/g,"\u2019");
+}
+
+/* ---------- plan math and checks (all in code, not AI) ---------- */
+function checklistItems(penny){
+  var items=[
+    {id:"c_self",t:"I found this stock myself, not from a tip, alert, or promoter"},
+    {id:"c_stop",t:"My stop is at a level that proves my idea wrong"},
+    {id:"c_chase",t:"I\u2019m not chasing a spike or buying out of FOMO"}
+  ];
+  if(penny){
+    items.push({id:"c_file",t:"I read its latest SEC filing (10-K or 10-Q) or full OTC disclosure"});
+    items.push({id:"c_dil",t:"I checked cash runway and share count for dilution risk"});
+    items.push({id:"c_venue",t:"I know which exchange or OTC tier it trades on"});
+  }
+  return items;
+}
+var RANK={fail:0,warn:1,pass:2,info:3};
+var LEARN={
+  spread:"The bid is the highest price a buyer will pay right now. The ask is the lowest price a seller will accept. You buy at the ask and sell at the bid, so the gap between them is a cost on every round trip. In thin stocks the gap can be several percent.",
+  liq:"Volume is how many shares trade in a day. Thin trading means few shares trade and few people are waiting to buy or sell. Your own order can move the price, and you may not find a buyer near your price when you want out. Compare your order to the average daily volume.",
+  gap:"A stop-loss turns into a market order when it triggers. If the stock opens far below your stop, you get the next available price, which can be much lower than your stop.",
+  stop:"Your stop is the price that proves your idea wrong. Choose it from the chart, such as just below a floor, not from how much you\u2019re willing to lose. Then size the trade so hitting it costs you only your risk amount.",
+  venue:"Exchanges like Nasdaq and the NYSE make companies meet listing standards and file regular reports. Over-the-counter (OTC) markets have looser rules, and the lowest tier can have very little verified information.",
+  filings:"Public companies file reports with the SEC: the 10-K (yearly) and 10-Q (quarterly). They show cash, losses, and how many shares exist. Search the ticker at sec.gov/edgar. With no recent filings, you can\u2019t verify what you\u2019re buying.",
+  mcap:"Market cap is the share price times the number of shares. It\u2019s the company\u2019s total value on the market. Smaller companies are easier to push around with a few trades and are watched by fewer people.",
+  move:"A huge jump in one day is often a pump or a one-time burst of news. By the time you see it, early buyers may be selling to you.",
+  cat:"Real catalysts show up in an SEC filing or an official press release with details. A tip, a chat message, or a post is not proof.",
+  conc:"Even with a stop, surprises happen. Keeping each position a modest share of your account means one bad stock can\u2019t sink you."
+};
+function learnKey(title){
+  if(/gap/i.test(title)){ return "gap"; }
+  if(/spread/i.test(title)){ return "spread"; }
+  if(/volume|exit cleanly|liquidity/i.test(title)){ return "liq"; }
+  if(/\bstop\b/i.test(title)){ return "stop"; }
+  if(/slice of your account/i.test(title)){ return "conc"; }
+  return "";
+}
+function mcapText(m){ return m>=1000?"$"+(m/1000).toFixed(2)+" billion":"$"+(m>=10?Math.round(m):m)+" million"; }
+
+function compute(){
+  var i=state.inputs;
+  var acct=num(i.account), riskPct=num(i.risk), entry=num(i.entry), stop=num(i.stop), target=num(i.target);
+  var bid=num(i.bid), ask=num(i.ask), adv=num(i.adv), planned=Math.floor(num(i.shares));
+  var venue=i.venue||"", mcap=num(i.mcap), filings=i.filings||"", move=num(i.move), cat=i.cat||"";
+  var out={ready:false,checks:[],msg:"Enter your account size and entry price to start."};
+  if(!(acct>0)||!(entry>0)){ return out; }
+
+  var checks=[];
+  function add(level,title,detail,key){ checks.push({level:level,title:title,detail:detail,learn:key?(LEARN[key]||""):""}); }
+  var under5=entry<5;
+  var rps=NaN, riskD=NaN, shares=0, maxByRisk=0, rr=NaN, spreadPct=NaN, advPct=NaN;
+  var afford=Math.floor(acct/entry);
+
+
+  // 1) risk rule
+  if(!(riskPct>0)){
+    add("fail","Set your risk per trade","Choose the percent of your account you\u2019re willing to lose if you\u2019re wrong. The course rule is 1% or less.");
+  } else if(riskPct>2){
+    add("fail","Risk per trade is too high","You set "+pc(riskPct)+". The course rule is 1% or less, and many traders use 0.5% to 1% on penny stocks.");
+  } else if(riskPct>1){
+    add("warn","Risk per trade is above 1%","You set "+pc(riskPct)+". The course rule is 1% or less. Consider lowering it, especially on penny stocks.");
+  } else {
+    add("pass","Risk per trade is within the rule",pc(riskPct)+" of "+money(acct)+" is "+money(acct*riskPct/100)+" at risk if you\u2019re wrong.");
+  }
+  var maxRisk=acct*(riskPct>0?riskPct:0)/100;
+
+  // 2) stop and size
+  if(!(stop>0)){
+    add("fail","No stop yet","Your stop is the price where your idea is proven wrong. Pick it before you enter. Without one, the trade can\u2019t be sized.");
+  } else if(stop>=entry){
+    add("fail","Stop must be below your entry","This tool plans long trades only. Put your stop below your entry price.");
+  } else {
+    rps=entry-stop;
+    maxByRisk=Math.floor(maxRisk/rps);
+    if(maxByRisk<1){
+      add("fail","Your stop is too far for your risk rule","Even one share would risk more than "+money(maxRisk)+". Move the stop closer to your entry or pass on this trade.");
+    } else {
+      shares=planned>0?planned:Math.min(maxByRisk,afford);
+      riskD=shares*rps;
+      if(planned>0&&planned>maxByRisk){
+        add("fail","That position is too big for your risk rule","Your size risks "+money(riskD)+" ("+pc(riskD/acct*100,2)+" of your account). Your rule allows about "+maxByRisk+" shares.");
+      } else if(shares*entry>acct){
+        add("fail","More than your account can buy","That position costs "+money(shares*entry)+". Your account can buy up to "+afford+" shares at this price.");
+      } else {
+        add("pass","Position size fits your rule",shares+" shares risks about "+money(riskD)+" ("+pc(riskD/acct*100,2)+" of your account) if the stop holds.");
+      }
+      if(!(planned>0)&&maxByRisk>afford){
+        add("info","Your cash is the limit","Your risk rule would allow "+maxByRisk+" shares, but your account can only buy "+afford+".");
+      }
+    }
+  }
+
+  if(shares>0&&shares*entry<=acct){
+    var conc=shares*entry/acct*100;
+    if(conc>25){ add("warn","Big slice of your account in one stock","This position is "+pc(conc,0)+" of your account. Even with a stop, surprises happen, so many traders keep one position to a modest share of the account.","conc"); }
+  }
+
+  // 3) reward
+  if(rps>0){
+    if(!(target>0)){
+      add("warn","No target yet","Pick the price where you\u2019d take profit. Without one you can\u2019t tell whether the trade is worth the risk.");
+    } else if(target<=entry){
+      add("fail","Target must be above your entry","This tool plans long trades only. Put your target above your entry price.");
+    } else {
+      rr=(target-entry)/rps;
+      if(rr>=2){
+        add("pass","Reward vs. risk meets the minimum","Reward is "+rr.toFixed(1)+" times your risk (1:"+rr.toFixed(1)+"). The course minimum is 1:2.");
+      } else {
+        add("fail","Reward is too small for the risk","Reward is only "+rr.toFixed(1)+" times your risk. The course minimum is 1:2. Raise the target, tighten the stop, or pass.");
+      }
+    }
+  }
+
+  // 4) spread
+  if(bid>0&&ask>0){
+    if(ask<bid){
+      add("warn","Check your bid and ask","The ask is normally higher than the bid. Double-check the numbers.");
+    } else {
+      spreadPct=(ask-bid)/ask*100;
+      var cost=shares>0?shares*(ask-bid):NaN;
+      var costTxt=(cost>0?" On "+shares+" shares that\u2019s about "+money(cost)+" for a buy and an immediate sell.":"");
+      if(spreadPct<=1){
+        add("pass","Spread is tight","The spread is "+pc(spreadPct,2)+" of the price."+costTxt);
+      } else if(spreadPct<=3){
+        add("warn","Spread is noticeable","The spread is "+pc(spreadPct,1)+". You start the trade that far in the hole, so the price has to move more just to break even."+costTxt);
+      } else {
+        add("fail","Spread is wide","The spread is "+pc(spreadPct,1)+". Buying at the ask and selling at the bid loses that much before the price moves."+costTxt);
+      }
+    }
+  } else {
+    add("info","Check the spread","Enter the bid and ask to see what the spread costs you. In thin stocks it can be several percent.");
+  }
+
+  // 5) liquidity
+  if(adv>0){
+    var dv=adv*entry;
+    if(shares>0){
+      advPct=shares/adv*100;
+      var base="Average volume is "+Math.round(adv).toLocaleString("en-US")+" shares (about "+money(dv)+" a day). Your order is "+pc(advPct,2)+" of a typical day.";
+      if(advPct<=1){ add("pass","You could likely exit cleanly",base); }
+      else if(advPct<=5){ add("warn","Your size is a noticeable share of daily volume",base+" A few percent at most is a common rule of thumb."); }
+      else { add("fail","Your size is too big for this stock\u2019s volume",base+" Selling could push the price down against you."); }
+    } else {
+      add("info","Daily dollar volume","About "+money(dv)+" trades on a typical day.");
+    }
+  } else {
+    add("info","Check liquidity","Enter the average daily volume (in shares) to see whether you could exit without moving the price.");
+  }
+
+  // 5b) how it behaves, not just its price
+  var signs=[];
+  if(under5){ signs.push("Under $5 a share"); }
+  if(venue==="otcup"||venue==="otclow"){ signs.push("Trades over the counter"); }
+  if(venue==="unsure"){ signs.push("Venue unknown"); }
+  if(mcap>0&&mcap<300){ signs.push(mcap<50?"Nano cap (under $50M)":"Micro cap (under $300M)"); }
+  if(spreadPct>3){ signs.push("Wide spread"); }
+  if(adv>0&&adv*entry<100000){ signs.push("Very low daily dollar volume"); }
+  if(filings==="no"){ signs.push("No recent filings"); }
+  if(cat==="hype"){ signs.push("Driven by hype or tips"); }
+  if(move>=30){ signs.push("Up "+Math.round(move)+"% today"); }
+  var pennyStyle=under5||signs.length>=2;
+  var level=signs.length>=3?"high":(pennyStyle?"penny":"standard");
+  var profile={level:level,signs:signs,
+    label:level==="high"?"Higher risk":(level==="penny"?"Penny-style":"Standard"),
+    tip:level==="high"?"Several penny stock signs are present, so treat this as a penny stock whatever its price. Keep risk at 0.5% or less, use limit orders only, and check the filings before anything else."
+       :level==="penny"?"Treat this with the penny stock rules: 1% risk or less, limit orders, filings checked, and a size small enough to exit."
+       :"No penny stock signs so far. The core rules still apply: a stop first, 1% risk or less, and at least 1:2 reward."};
+
+  if(level==="high"&&riskPct>0.5){
+    add("warn","Consider 0.5% risk for a stock like this","Several penny stock signs are present. A smaller risk per trade gives you room to be wrong.");
+  }
+  var anyCo=!!(venue||filings||cat||mcap>0||isFinite(move));
+  if(!anyCo){
+    add("info","Tell the tutor about the company","Fill in \u201CAbout the company\u201D above: where it trades, market cap, recent filings, today\u2019s move, and what\u2019s driving it. Those clues show whether a stock acts like a penny stock, whatever its price.");
+  } else {
+    if(venue==="exch"||venue==="amex"){ add("pass","Listed on an exchange","Exchange-listed companies must meet listing standards and file regular reports with the SEC.","venue"); }
+    else if(venue==="otcup"){ add("warn","Trades over the counter","OTCQX and OTCQB have more requirements than the lowest tier, but far fewer than an exchange. Verify the filings yourself.","venue"); }
+    else if(venue==="otclow"){ add("fail","Lowest OTC tier","Companies here can publish very little verified information. The course says to skip these.","venue"); }
+    else if(venue==="unsure"){ add("warn","Find out where it trades","Your broker\u2019s quote page usually shows the exchange or OTC tier. Don\u2019t trade it until you know.","venue"); }
+    else { add("info","Check where it trades","Pick where it trades above. Over-the-counter stocks have looser rules than exchange-listed ones.","venue"); }
+
+    if(mcap>0){
+      if(mcap<50){ add("warn","Nano cap company","About "+mcapText(mcap)+" is a very small company (under $50 million). A few trades can push the price around.","mcap"); }
+      else if(mcap<300){ add("warn","Micro cap company","About "+mcapText(mcap)+" is a small company (under about $300 million). Smaller companies swing more and get less coverage.","mcap"); }
+      else { add("pass","Company size","About "+mcapText(mcap)+". Larger companies are usually easier to trade and better covered.","mcap"); }
+    }
+    if(filings==="no"){ add("fail","No recent SEC filings","No 10-K or 10-Q in the past year is a serious warning. The course says to skip these.","filings"); }
+    else if(filings==="unchecked"){
+      add(pennyStyle?"warn":"info","Check the filings first","Search the ticker at sec.gov/edgar. Look for the latest 10-K or 10-Q, the cash on hand, and the share count.","filings");
+    }
+    else if(filings==="yes"){ add("pass","Recent filings found","Read the latest one for cash, losses, and whether the share count keeps growing.","filings"); }
+
+    if(isFinite(move)){
+      if(move>=100){ add("fail","Up 100% or more today","A move this big is classic pump territory, and buying now is chasing. Don\u2019t buy a spike.","move"); }
+      else if(move>=30){ add("warn","Big spike today","Up "+Math.round(move)+"% today. Find out why before you consider it, and don\u2019t chase.","move"); }
+      else if(move<=-30){ add("warn","Big drop today","Find out why before you assume it will bounce. A stock falling hard can keep falling.","move"); }
+    }
+    if(cat==="hype"){ add("fail","Hype or a tip is not a reason","If a promoter or a chat group found it for you, you may be the exit. Find your own reason, or pass.","cat"); }
+    else if(cat==="none"){ add("warn","No news behind it","Interest or a big move with no real news is a warning, not an opportunity.","cat"); }
+    else if(cat==="verified"){ add("pass","Verified news","Check whether the news is already in the price before you act on it.","cat"); }
+  }
+
+  // 6) gap stress test
+  if(rps>0&&shares>0&&riskD>0){
+    var gp=pennyStyle?25:10;
+    var gl=shares*entry*gp/100;
+    add("info","Stress test: a "+gp+"% gap down overnight","If the stock opened "+gp+"% below your entry, you\u2019d lose about "+money(gl)+", which is "+(gl/riskD).toFixed(1)+" times your planned risk. A stop isn\u2019t a guarantee, so position size is your real protection.");
+  }
+
+  // checklist
+  var items=checklistItems(pennyStyle);
+  var pending=items.filter(function(it){ return !state.checks[it.id]; });
+  if(pending.length){
+    add("warn","Checklist: "+pending.length+" "+(pending.length===1?"item":"items")+" left","Tick each box below only when it\u2019s honestly true.");
+  } else {
+    add("pass","Checklist complete","You confirmed every item for this trade.");
+  }
+
+  checks.forEach(function(c){ if(!c.learn){ var k=learnKey(c.title); if(k){ c.learn=LEARN[k]; } } });
+  checks.sort(function(a,b){ return RANK[a.level]-RANK[b.level]; });
+  var hasFail=checks.some(function(c){ return c.level==="fail"; });
+  var hasWarn=checks.some(function(c){ return c.level==="warn"; });
+  var verdict=hasFail?"fail":(hasWarn?"almost":"complete");
+  var reward=(rps>0&&target>entry&&shares>0)?shares*(target-entry):NaN;
+
+  return {ready:true,penny:pennyStyle,profile:profile,venue:venue,mcap:mcap,filings:filings,move:move,cat:cat,items:items,checks:checks,verdict:verdict,
+    acct:acct,riskPct:riskPct,entry:entry,stop:stop,target:(target>0?target:NaN),
+    rps:rps,shares:shares,maxByRisk:maxByRisk,riskD:riskD,reward:reward,rr:rr,
+    spreadPct:spreadPct,advPct:advPct,positionValue:shares*entry,pending:pending.map(function(p){return p.t;})};
+}
+
+/* ---------- rendering: plan tab ---------- */
+var ICON={pass:"\u2713",warn:"!",fail:"\u2715",info:"i"};
+function renderResults(){
+  var p=compute(); state.plan=p;
+  var el=$("results");
+  if(!p.ready){
+    el.innerHTML='<div class="card"><h2>Your plan check</h2><p class="hint" style="margin:0">'+esc(p.msg)+'</p></div>';
+    $("checklist").innerHTML=""; $("ticket").innerHTML=""; state.listKey=null;
+    updateSave();
+    return;
+  }
+  var head={fail:["Fix these first","Something below breaks your rules. Fix the red items before you log this trade."],
+            almost:["Almost there","No rule is broken, but a few things still need attention."],
+            complete:["Plan complete","This plan follows your rules. In mock mode, log it and see how it plays out."]}[p.verdict];
+  var ok=p.shares>0&&p.rps>0;
+  var stats='<div class="stats">'
+    +stat("Shares",ok?String(p.shares):"\u2014",ok?"max by risk: "+p.maxByRisk:"")
+    +stat("Position",ok?money(p.positionValue):"\u2014",ok?pc(p.positionValue/p.acct*100,0)+" of account":"")
+    +stat("At risk",ok?money(p.riskD):"\u2014",ok?pc(p.riskD/p.acct*100,2)+" of account":"")
+    +stat("If target hits",isFinite(p.reward)?money(p.reward):"\u2014","")
+    +stat("Reward : risk",isFinite(p.rr)?"1 : "+p.rr.toFixed(1):"\u2014",isFinite(p.rr)?"min 1 : 2":"")
+    +stat("Spread",isFinite(p.spreadPct)?pc(p.spreadPct,2):"\u2014","of the price")
+    +'</div>';
+  var rows=p.checks.map(function(c){
+    var learn=c.learn?'<details class="learn"><summary>What does this mean?</summary><p>'+esc(c.learn)+'</p></details>':"";
+    return '<div class="chk"><span class="ic '+c.level+'" aria-hidden="true">'+ICON[c.level]+'</span><div><b>'+esc(c.title)+'</b><p>'+esc(c.detail)+'</p>'+learn+'</div></div>';
+  }).join("");
+  var prof='<div class="profile '+p.profile.level+'"><b>Stock risk profile: '+esc(p.profile.label)+'</b>'
+    +(p.profile.signs.length?'<div class="chips">'+p.profile.signs.map(function(sg){ return '<span class="chip">'+esc(sg)+'</span>'; }).join("")+'</div>':"")
+    +'<p>'+esc(p.profile.tip)+'</p></div>';
+  el.innerHTML='<div class="card"><div class="verdict '+p.verdict+'"><h3>'+esc(head[0])+'</h3><p>'+esc(head[1])+'</p></div>'+stats+prof+'<div style="margin-top:8px">'+rows+'</div></div>';
+
+  var tk=$("ticket");
+  if(ok){
+    function step(n,t,d){ return '<div class="chk"><span class="ic info" aria-hidden="true">'+n+'</span><div><b>'+esc(t)+'</b><p>'+esc(d)+'</p></div></div>'; }
+    tk.innerHTML='<div class="card"><h2>How to place it</h2><p class="hint">Mechanics only. Whether to take the trade is your call.</p>'
+      +step(1,"Entry: a limit order at "+price(p.entry)+" or better","A limit order caps what you pay. If it doesn\u2019t fill, skip it. Don\u2019t chase.")
+      +step(2,"Stop: "+price(p.stop),"Set it as an order before you walk away. It can fill lower if the stock gaps.")
+      +(isFinite(p.target)?step(3,"Target: a limit sell at "+price(p.target),"Take profit at your plan, not at a feeling."):"")
+      +step(isFinite(p.target)?4:3,"Timing","Course rule: skip the first 30 minutes after the open (9:30 to 10:00 ET), when spreads are widest and prices jump.")
+      +step(isFinite(p.target)?5:4,"If your stop hits","Sell, write down why, don\u2019t add more, and don\u2019t jump back in to win it back.")
+      +'</div>';
+  } else { tk.innerHTML=""; }
+
+  // Only redraw the checklist when its set of items changes, so ticking a box keeps focus.
+  var listKey=p.items.map(function(it){ return it.id; }).join(",");
+  if(state.listKey!==listKey){
+    state.listKey=listKey;
+    $("checklist").innerHTML='<div class="card"><h2>Before you enter</h2><p class="hint">Be honest. This list is only useful if it\u2019s true.</p>'
+      +p.items.map(function(it){
+        return '<label class="tick"><input type="checkbox" data-check="'+it.id+'"'+(state.checks[it.id]?" checked":"")+'><span>'+esc(it.t)+'</span></label>';
+      }).join("")+'</div>';
+  }
+  updateSave();
+}
+function stat(l,v,s){ return '<div class="stat"><div class="l">'+esc(l)+'</div><div class="v">'+esc(v)+'</div><div class="s">'+esc(s||"\u00a0")+'</div></div>'; }
+
+/* ---------- rule guard: two losses in a day ---------- */
+function guardActive(){
+  var today=new Date().toDateString();
+  var closedToday=state.journal.filter(function(e){ return e.status==="closed"&&e.closedAt&&new Date(e.closedAt).toDateString()===today; })
+    .sort(function(a,b){ return new Date(b.closedAt)-new Date(a.closedAt); });
+  var n=0;
+  for(var k=0;k<closedToday.length;k++){ if(closedToday[k].pnl<0){ n++; } else { break; } }
+  return n>=2;
+}
+function renderGuard(){
+  var g=$("guard");
+  if(guardActive()){
+    g.hidden=false;
+    g.innerHTML="<b>Two losses in a row today.</b> Your rules say stop for the day. Write down what happened in your journal instead of trading to win it back.";
+  } else { g.hidden=true; g.innerHTML=""; }
+}
+
+/* ---------- save to journal ---------- */
+function updateSave(){
+  var p=state.plan, save=$("btnSave"), force=$("btnForce"), msg=$("saveMsg");
+  var ok=p&&p.ready&&p.shares>0&&p.rps>0;
+  var guard=guardActive();
+  force.hidden=true; save.disabled=true;
+  if(!ok){ msg.textContent="Complete the plan above (entry, stop, and size) to log it."; return; }
+  if(p.verdict==="fail"){
+    msg.textContent="Fix the red items first. If you\u2019re taking this trade anyway, log it as a rule break so your journal stays honest.";
+    force.hidden=false; return;
+  }
+  if(guard){
+    msg.textContent="You have two losses in a row today, so your rules say stop. If you\u2019re trading anyway, log it as a rule break.";
+    force.hidden=false; return;
+  }
+  save.disabled=false;
+  msg.textContent=p.verdict==="complete"?"Your plan follows the rules. Save it, then close it out when the trade is over.":"Open items are fine to log, but try to finish the checklist first.";
+}
+function saveEntry(force){
+  var p=state.plan;
+  if(!(p&&p.ready&&p.shares>0&&p.rps>0)){ return; }
+  var e={id:Date.now(),ts:new Date().toISOString(),ticker:cleanTicker(state.inputs.ticker)||"NO TICKER",
+    entry:p.entry,stop:p.stop,target:isFinite(p.target)?p.target:null,shares:p.shares,acct:p.acct,
+    riskD:p.riskD,riskPct:p.riskPct,rr:isFinite(p.rr)?p.rr:null,penny:p.penny,
+    status:"open",ruleBreak:!!force};
+  state.journal.push(e); saveJournal();
+  $("saveMsg").textContent="Saved to your journal.";
+  $("btnSave").disabled=true; $("btnForce").hidden=true;
+  renderJournal(); renderGuard();
+}
+
+/* ---------- journal tab ---------- */
+function closedStats(){
+  var c=state.journal.filter(function(e){ return e.status==="closed"; });
+  var wins=c.filter(function(e){ return e.pnl>0; }), losses=c.filter(function(e){ return e.pnl<0; });
+  function avg(a,f){ return a.length?a.reduce(function(s,e){ return s+f(e); },0)/a.length:NaN; }
+  return {n:c.length,winRate:c.length?wins.length/c.length*100:NaN,avgWin:avg(wins,function(e){return e.rmult;}),
+    avgLoss:avg(losses,function(e){return e.rmult;}),total:c.reduce(function(s,e){return s+e.pnl;},0),
+    followed:c.length?c.filter(function(e){return e.followed;}).length/c.length*100:NaN};
+}
+function rtxt(x){ return isFinite(x)?(x>=0?"+":"")+x.toFixed(2)+"R":"\u2014"; }
+function renderJournal(){
+  $("jcount").textContent=state.journal.length?"("+state.journal.length+")":"";
+  afterJournal();
+  var s=closedStats();
+  $("jstats").innerHTML=stat("Closed trades",String(s.n),"")
+    +stat("Win rate",isFinite(s.winRate)?pc(s.winRate,0):"\u2014","")
+    +stat("Total P/L",s.n?money(s.total):"\u2014","")
+    +stat("Avg win",rtxt(s.avgWin),"in R")
+    +stat("Avg loss",rtxt(s.avgLoss),"in R")
+    +stat("Followed plan",isFinite(s.followed)?pc(s.followed,0):"\u2014","of closed trades");
+  var list=$("journalList");
+  if(!state.journal.length){
+    list.innerHTML='<div class="empty">No trades yet. Build a plan on the Plan tab and save it here.</div>';
+    return;
+  }
+  list.innerHTML=state.journal.slice().reverse().map(entryHTML).join("");
+}
+function afterJournal(){ if(typeof renderReady==="function"){ renderReady(); } }
+function entryHTML(e){
+  var closed=e.status==="closed";
+  var tag=closed?(e.pnl>=0?'<span class="pill win">Win</span>':'<span class="pill loss">Loss</span>'):'<span class="pill open">Open</span>';
+  var h='<div class="jcard" data-id="'+e.id+'"><div class="j-head"><strong>'+esc(e.ticker)+'</strong>'+tag
+    +(e.ruleBreak?'<span class="pill loss">Rule break</span>':'')+'<span class="j-date">'+esc(fmtDate(e.ts))+'</span></div>';
+  h+='<div class="j-line">Plan: entry <b>'+price(e.entry)+'</b>, stop <b>'+price(e.stop)+'</b>'+(e.target?', target <b>'+price(e.target)+'</b>':'')+', <b>'+e.shares+'</b> shares</div>';
+  h+='<div class="j-line">Risked <b>'+money(e.riskD)+'</b>'+(e.rr?', reward : risk <b>1 : '+e.rr.toFixed(1)+'</b>':'')+'</div>';
+  if(closed){
+    h+='<div class="j-line">Exit <b>'+price(e.exit)+'</b>, result <b>'+money(e.pnl)+'</b> ('+rtxt(e.rmult)+'), followed plan: <b>'+(e.followed?"yes":"no")+'</b></div>';
+    if(e.note){ h+='<div class="j-note">'+esc(e.note)+'</div>'; }
+    h+='<div id="d-'+e.id+'" class="ai-out"'+(e.debrief?"":" hidden")+'>'+esc(e.debrief||"")+'</div>';
+  }
+  if(state.openClose===e.id&&!closed){
+    h+='<div style="margin-top:10px"><div class="field"><label for="x-exit-'+e.id+'">Exit price ($)</label><input type="text" id="x-exit-'+e.id+'" inputmode="decimal" autocomplete="off" placeholder="what it closed at"></div>'
+      +'<label class="tick"><input type="checkbox" id="x-follow-'+e.id+'" checked><span>I followed my plan (stop, size, target)</span></label>'
+      +'<div class="field"><label for="x-note-'+e.id+'">What did you learn? (optional)</label><textarea id="x-note-'+e.id+'" rows="2" placeholder="One or two sentences"></textarea></div>'
+      +'<div class="row" style="margin-top:8px"><button type="button" class="btn brand small" data-act="close-save" data-id="'+e.id+'">Save result</button>'
+      +'<button type="button" class="btn alt small" data-act="close-cancel" data-id="'+e.id+'">Cancel</button></div></div>';
+  } else {
+    h+='<div class="row" style="margin-top:10px">';
+    if(!closed){ h+='<button type="button" class="btn alt small" data-act="close-open" data-id="'+e.id+'">Close trade</button>'; }
+    if(closed&&state.sample){ h+='<button type="button" class="btn alt small" data-act="debrief" data-id="'+e.id+'">'+(e.debrief?"Debrief again":"Debrief with tutor")+'</button>'; }
+    h+='<button type="button" class="btn alt small" data-act="copy" data-id="'+e.id+'">Copy summary</button>'
+      +'<button type="button" class="btn alt small" data-act="delete" data-id="'+e.id+'">'+(state.confirmDel===e.id?"Tap again to delete":"Delete")+'</button></div>';
+  }
+  return h+'<div id="c-'+e.id+'"></div></div>';
+}
+function findEntry(id){ for(var k=0;k<state.journal.length;k++){ if(String(state.journal[k].id)===String(id)){ return state.journal[k]; } } return null; }
+function summaryText(e){
+  var t="Trade Tutor (mock): "+e.ticker+"\nPlan: entry "+price(e.entry)+", stop "+price(e.stop)+(e.target?", target "+price(e.target):"")+", "+e.shares+" shares\nRisk: "+money(e.riskD)+" ("+pc(e.riskPct,1)+" of account)"+(e.rr?", reward : risk 1 : "+e.rr.toFixed(1):"");
+  if(e.status==="closed"){ t+="\nResult: exit "+price(e.exit)+", "+money(e.pnl)+" ("+rtxt(e.rmult)+"), followed plan: "+(e.followed?"yes":"no"); if(e.note){ t+="\nLesson: "+e.note; } }
+  else { t+="\nStatus: open"; }
+  if(e.ruleBreak){ t+="\nNote: logged as a rule break"; }
+  return t;
+}
+function copyText(text,slotId){
+  var slot=$(slotId);
+  function fallback(){
+    if(!slot){ return; }
+    slot.innerHTML='<textarea class="copybox" readonly rows="5"></textarea><p class="hint" style="margin:4px 0 0">Copy didn\u2019t work here. Select the text above and copy it by hand.</p>';
+    var ta=slot.querySelector("textarea"); ta.value=text; ta.focus(); ta.select();
+  }
+  try{
+    if(navigator.clipboard&&navigator.clipboard.writeText){
+      navigator.clipboard.writeText(text).then(function(){ if(slot){ slot.innerHTML='<p class="hint" style="margin:8px 0 0">Copied. Your account size isn\u2019t included.</p>'; } },fallback);
+    } else { fallback(); }
+  }catch(e){ fallback(); }
+}
+function onJournalClick(ev){
+  var b=ev.target.closest("[data-act]"); if(!b){ return; }
+  var act=b.getAttribute("data-act"), id=b.getAttribute("data-id"), e=findEntry(id);
+  if(!e){ return; }
+  if(act==="close-open"){ state.openClose=e.id; renderJournal(); }
+  else if(act==="close-cancel"){ state.openClose=null; renderJournal(); }
+  else if(act==="close-save"){
+    var ex=num($("x-exit-"+e.id).value);
+    if(!(ex>0)){ $("x-exit-"+e.id).focus(); return; }
+    e.exit=ex; e.pnl=(ex-e.entry)*e.shares; e.rmult=(ex-e.entry)/(e.entry-e.stop);
+    e.followed=$("x-follow-"+e.id).checked; e.note=($("x-note-"+e.id).value||"").trim().slice(0,400);
+    e.status="closed"; e.closedAt=new Date().toISOString();
+    state.openClose=null; saveJournal(); renderJournal(); renderGuard(); updateSave();
+  }
+  else if(act==="copy"){ copyText(summaryText(e),"c-"+e.id); }
+  else if(act==="delete"){
+    if(state.confirmDel===e.id){
+      state.journal=state.journal.filter(function(x){ return x.id!==e.id; });
+      state.confirmDel=null; saveJournal(); renderJournal(); renderGuard(); updateSave();
+    } else {
+      state.confirmDel=e.id; renderJournal();
+      setTimeout(function(){ if(state.confirmDel===e.id){ state.confirmDel=null; renderJournal(); } },3000);
+    }
+  }
+  else if(act==="debrief"){ debrief(e); }
+}
+
+/* ---------- AI coach (optional; the page works without it) ---------- */
+var RULES_FOR_AI=
+ "You are Trade Tutor, a patient coach inside a beginner trading course. This is MOCK (practice) trading for education.\n"
++"Rules you must follow:\n"
++"- Never tell the user to buy, sell, or hold anything. Never predict a stock's price or say a trade will work out.\n"
++"- Any numbers given below were calculated by the app. Do not recalculate or change them.\n"
++"- Coach the process: name the one or two most important gaps first, then ask two short questions that make the user think.\n"
++"- Use plain words a beginner understands. No markdown, no bullet symbols. Under 140 words.\n"
++"- If asked what to buy or whether a stock will go up, politely decline and redirect to the plan, the risk, or the checklist.\n"
++"- End with this exact line: Educational only, not financial advice.\n";
+function planFacts(p){
+  if(!p||!p.ready){ return "No complete plan has been entered yet."; }
+  var lines=[
+    "Ticker: "+(cleanTicker(state.inputs.ticker)||"not entered"),
+    "Account size: "+money(p.acct)+", risk per trade: "+pc(p.riskPct,2),
+    "Entry "+price(p.entry)+", stop "+(isFinite(p.stop)?price(p.stop):"not set")+", target "+(isFinite(p.target)?price(p.target):"not set"),
+    "Shares: "+p.shares+", dollars at risk: "+(isFinite(p.riskD)?money(p.riskD):"unknown")+", reward to risk: "+(isFinite(p.rr)?p.rr.toFixed(1):"unknown"),
+    "Penny-style treatment applies: "+(p.penny?"yes":"no")+", risk profile: "+p.profile.label+(p.profile.signs.length?" ("+p.profile.signs.join("; ")+")":""),
+    "Where it trades: "+({exch:"Nasdaq or NYSE",amex:"NYSE American",otcup:"OTCQX or OTCQB",otclow:"OTC Pink or Expert Market",unsure:"user is not sure"}[p.venue]||"not entered")
+      +", market cap: "+(p.mcap>0?mcapText(p.mcap):"not entered")
+      +", recent filings: "+({yes:"yes",no:"none",unchecked:"not checked yet"}[p.filings]||"not entered")
+      +", today's move: "+(isFinite(p.move)?p.move+"%":"not entered")
+      +", driver: "+({verified:"verified news",none:"no news found",hype:"only hype or tips"}[p.cat]||"not entered"),
+    "Spread: "+(isFinite(p.spreadPct)?pc(p.spreadPct,2):"not entered")+", order as share of daily volume: "+(isFinite(p.advPct)?pc(p.advPct,2):"not entered"),
+    "Checklist items not yet confirmed: "+(p.pending.length?p.pending.join("; "):"none"),
+    "App check results:"
+  ];
+  p.checks.forEach(function(c){ lines.push("- ["+c.level+"] "+c.title+": "+c.detail); });
+  return lines.join("\n");
+}
+function runAI(prompt,outEl,done){
+  if(!state.sample){ return; }
+  if(state.ctl){ try{ state.ctl.abort(); }catch(e){} }
+  var ctl=new AbortController(); state.ctl=ctl;
+  outEl.hidden=false; outEl.textContent="Thinking\u2026";
+  state.sample(prompt,{cache:false,signal:ctl.signal,onText:function(r){ if(r&&typeof r.text==="string"&&r.text){ outEl.textContent=typo(r.text); } }})
+  .then(function(res){
+    var t=typo((res&&res.text)||"");
+    outEl.textContent=t||"No answer came back. Try again.";
+    if(done){ done(t); }
+  })
+  .catch(function(err){
+    if(err&&(err.name==="AbortError"||err.code==="aborted")){ return; }
+    var c=err&&err.code;
+    outEl.textContent=c==="rate_limited"?"The tutor needs a moment. Try again in a few seconds."
+      :c==="not_granted"?"AI coaching is turned off for this page. The plan check still works on its own."
+      :"The tutor couldn\u2019t answer just now. The plan check still works on its own.";
+  });
+}
+function coachPlan(){
+  var p=state.plan;
+  if(!(p&&p.ready)){ var o=$("aiOut"); o.hidden=false; o.textContent="Enter your account size and entry price first, then ask the tutor to coach your plan."; return; }
+  runAI(RULES_FOR_AI+"\nTask: Coach this mock trade plan.\n\nPLAN DATA\n"+planFacts(p),$("aiOut"));
+}
+function askTutor(){
+  var q=($("aiQ").value||"").trim().slice(0,500);
+  if(!q){ $("aiQ").focus(); return; }
+  var ctx=(state.plan&&state.plan.ready)?"\n\nPLAN DATA (for context only)\n"+planFacts(state.plan):"";
+  runAI(RULES_FOR_AI+"\nTask: Answer the student's question in beginner-friendly language, tied to the plan if it helps.\n\nSTUDENT QUESTION\n"+q+ctx,$("aiOut"));
+}
+function debrief(e){
+  var out=$("d-"+e.id); if(!out){ return; }
+  var prompt=RULES_FOR_AI+"\nTask: Debrief this CLOSED mock trade. Acknowledge what happened without praise or blame, point to the one rule or habit that mattered most, ask two reflective questions, and suggest one concrete thing to practice next time. Do not judge whether the stock was a good pick.\n\nTRADE\n"
+    +"Ticker: "+e.ticker+"\nPlanned entry "+price(e.entry)+", stop "+price(e.stop)+(e.target?", target "+price(e.target):"")+", shares "+e.shares+"\n"
+    +"Exit "+price(e.exit)+", profit or loss "+money(e.pnl)+" ("+rtxt(e.rmult)+")\n"
+    +"Followed own plan: "+(e.followed?"yes":"no")+"\nLogged as a rule break: "+(e.ruleBreak?"yes":"no")+"\nStudent's note: "+(e.note||"none");
+  runAI(prompt,out,function(t){ if(t){ e.debrief=t; saveJournal(); } });
+}
+function updateAI(){
+  var hint=$("aiHint"), controls=$("aiControls");
+  if(state.sample){
+    hint.textContent="Your tutor checks the plan above and answers questions. It never says buy or sell. The first time, you\u2019ll be asked to allow it.";
+    controls.hidden=false;
+  } else {
+    hint.textContent="The AI coach isn\u2019t available here. The plan check, rule guard, and journal all work without it.";
+    controls.hidden=true;
+  }
+  renderJournal();
+}
+function initAI(){
+  if(!(window.claude&&typeof window.claude.use==="function")){ state.sample=null; updateAI(); return; }
+  window.claude.use("sample").then(function(s){ state.sample=(typeof s==="function")?s:null; updateAI(); })
+    .catch(function(){ state.sample=null; updateAI(); });
+}
+
+/* ---------- goals: ready for real money, profit split, what-if ---------- */
+var KEY_G="trade_tutor_goals_v1";
+(function(){
+  var g=parse(safeGet(KEY_G),null);
+  if(g&&typeof g==="object"){
+    if(g.split&&typeof g.split==="object"){ for(var k in state.split){ if(typeof g.split[k]!=="undefined"){ state.split[k]=g.split[k]; } } }
+    if(g.what&&typeof g.what==="object"){ for(var k2 in state.what){ if(typeof g.what[k2]==="string"){ state.what[k2]=g.what[k2]; } } }
+    if(typeof g.money==="boolean"){ state.money=g.money; }
+  }
+})();
+function saveGoals(){ safeSet(KEY_G,JSON.stringify({split:state.split,what:state.what,money:state.money})); }
+
+function splitPct(k){ var v=num(state.split[k]); return isFinite(v)?v:0; }
+function splitTotal(){ return Math.round(splitPct("tax")+splitPct("trade")+splitPct("long")+splitPct("proj")); }
+
+function readiness(){
+  var c=state.journal.filter(function(e){ return e.status==="closed"; });
+  var n=c.length;
+  var followed=n?c.filter(function(e){ return e.followed; }).length/n*100:NaN;
+  var avgR=n?c.reduce(function(sum,e){ return sum+e.rmult; },0)/n:NaN;
+  var worst=n?Math.min.apply(null,c.map(function(e){ return e.rmult; })):NaN;
+  var days=0;
+  if(n){
+    var starts=state.journal.map(function(e){ return new Date(e.ts).getTime(); });
+    var ends=c.map(function(e){ return new Date(e.closedAt||e.ts).getTime(); });
+    days=Math.max(0,Math.floor((Math.max.apply(null,ends)-Math.min.apply(null,starts))/86400000));
+  }
+  var splitOk=!!state.split.saved&&splitTotal()===100;
+  return [
+    {ok:n>=50,title:"At least 50 closed practice trades",detail:n+" of 50 so far"},
+    {ok:n>0&&followed>=80,title:"You followed your plan on 80% or more",detail:n?Math.round(followed)+"% so far":"No closed trades yet"},
+    {ok:n>0&&avgR>0,title:"Your average trade makes money",detail:n?"Average "+rtxt(avgR)+" per trade (it needs to be above 0)":"No closed trades yet"},
+    {ok:n>0&&worst>=-1.5,title:"No loss bigger than 1.5 times your planned risk",detail:n?"Worst loss so far: "+rtxt(worst):"No closed trades yet"},
+    {ok:days>=30,title:"At least 30 days of practice",detail:days+" of 30 days so far"},
+    {ok:!!state.money,title:"The money is money you can lose completely",detail:"You confirm this one yourself",manual:true},
+    {ok:splitOk,title:"You know where your profit goes",detail:splitOk?"Your split is saved":"Set and save your split below"}
+  ];
+}
+function renderReady(){
+  var el=$("readyBody"); if(!el){ return; }
+  var items=readiness(), done=items.filter(function(it){ return it.ok; }).length, all=done===items.length;
+  var head=all
+    ?'<div class="verdict complete"><h3>You\u2019re ready to start small</h3><p>Your own rules say you can try a small amount of real money. That\u2019s a starting line, not a guarantee.</p></div>'
+    :'<div class="verdict almost"><h3>Not yet: '+done+' of '+items.length+'</h3><p>Keep practicing. Most of these come from your closed trades in the Journal tab.</p></div>';
+  var rows=items.map(function(it){
+    var title=it.manual
+      ?'<label class="tick" style="padding:0"><input type="checkbox" data-money'+(state.money?" checked":"")+'><span><b>'+esc(it.title)+'</b></span></label>'
+      :'<b>'+esc(it.title)+'</b>';
+    return '<div class="chk"><span class="ic '+(it.ok?"pass":"info")+'" aria-hidden="true">'+(it.ok?ICON.pass:"\u2022")+'</span><div>'+title+'<p>'+esc(it.detail)+'</p></div></div>';
+  }).join("");
+  el.innerHTML=head+'<div style="margin-top:8px">'+rows+'</div>'
+    +'<details class="learn" style="margin-top:8px"><summary>What is R?</summary><p>R is your profit or loss measured in what you planned to risk. +1R means you made what you risked. \u22121R means you lost what you planned to lose. It lets you compare trades of any size.</p></details>'
+    +(all?'<p class="hint" style="margin:12px 0 0">If you go ahead: start with an amount that wouldn\u2019t hurt to lose, keep the same rules, and keep logging every trade.</p>':"");
+}
+
+function renderSplit(){
+  var out=$("splitOut"); if(!out){ return; }
+  var profit=num(state.split.profit), total=splitTotal(), msg="", rows="";
+  if(total!==100){ msg='<div class="banner" style="margin:10px 0 0"><b>Your percents add up to '+total+'%.</b> They should add up to 100%.</div>'; }
+  if(!isFinite(profit)){ rows='<p class="hint" style="margin:10px 0 0">Enter this month\u2019s profit to see the split.</p>'; }
+  else if(profit<=0){ rows='<p class="hint" style="margin:10px 0 0">No profit to split. In a losing month nothing moves out. The loss stays in the trading account.</p>'; }
+  else {
+    var defs=[["tax","Taxes (set aside)"],["trade","Keep trading"],["long","Long-term stocks"],["proj","Projects"]];
+    rows='<div style="margin-top:10px">'+defs.map(function(d){
+      return '<div class="split-row"><span>'+esc(d[1])+' <span class="count">'+splitPct(d[0])+'%</span></span><b class="mono">'+money(profit*splitPct(d[0])/100)+'</b></div>';
+    }).join("")+'</div>';
+  }
+  out.innerHTML=msg+rows+'<p class="hint" style="margin:10px 0 0">The tax number is a placeholder. A CPA can tell you your real one.</p>';
+  $("btnSplitSave").textContent=(state.split.saved&&total===100)?"Split saved":"Save my split";
+}
+function renderWhatIf(){
+  var out=$("whatifOut"); if(!out){ return; }
+  var a=num(state.what.acct); if(!isFinite(a)){ a=num(state.inputs.account); }
+  var r=num(state.what.ret), dep=num(state.what.dep); if(!isFinite(dep)){ dep=0; }
+  if(!(a>0)||!isFinite(r)){ out.innerHTML='<p class="hint" style="margin:10px 0 0">Enter an account size and a monthly return to see the math.</p>'; return; }
+  var bal=a, bal0=a;
+  for(var m=0;m<12;m++){ bal=bal*(1+r/100)+dep; bal0=bal0*(1+r/100); }
+  var put=a+dep*12, growth=bal-put;
+  var warn=r>5?'<div class="banner" style="margin:10px 0 0"><b>'+pc(r,1)+' a month is very hard to keep up.</b> Plan with smaller numbers.</div>':"";
+  out.innerHTML=warn+'<div class="stats">'
+    +stat("Month 1 profit",money(a*r/100),pc(r,1)+" of "+money(a))
+    +stat("After 12 months",money(bal),"with your deposits")
+    +stat("Returns only",money(bal0),"no deposits")
+    +'</div><p class="hint" style="margin:8px 0 0">You would put in '+money(put)+' of your own money. '+(growth>=0?"Returns would add ":"Returns would take away ")+money(Math.abs(growth))+'. On a small account, deposits can move the balance more than returns do.</p>';
+}
+function monthProfit(){
+  var now=new Date();
+  var sum=state.journal.filter(function(e){
+    if(e.status!=="closed"){ return false; }
+    var d=new Date(e.closedAt||e.ts);
+    return d.getFullYear()===now.getFullYear()&&d.getMonth()===now.getMonth();
+  }).reduce(function(t,e){ return t+e.pnl; },0);
+  return Math.round(sum*100)/100;
+}
+function renderGoals(){ renderReady(); renderSplit(); renderWhatIf(); }
+
+/* ---------- wiring ---------- */
+function setTab(t){
+  state.tab=t;
+  ["plan","journal","goals","rules"].forEach(function(n){
+    $("tab-"+n).classList.toggle("on",n===t);
+  });
+  document.querySelectorAll(".tab").forEach(function(b){
+    var on=b.getAttribute("data-tab")===t;
+    b.classList.toggle("on",on); b.setAttribute("aria-selected",on?"true":"false");
+  });
+  window.scrollTo(0,0);
+}
+document.querySelectorAll(".tab").forEach(function(b){ b.addEventListener("click",function(){ setTab(b.getAttribute("data-tab")); }); });
+
+document.querySelectorAll("[data-key]").forEach(function(el){
+  var k=el.getAttribute("data-key");
+  el.value=state.inputs[k]||"";
+  var onChange=function(){
+    state.inputs[k]=(k==="ticker")?cleanTicker(el.value):el.value;
+    if(k==="ticker"&&el.value!==state.inputs[k]){ el.value=state.inputs[k]; }
+    saveInputs(); renderResults();
+    if(k==="account"){ renderWhatIf(); }
+  };
+  el.addEventListener("input",onChange);
+  el.addEventListener("change",onChange);
+});
+$("checklist").addEventListener("change",function(ev){
+  var c=ev.target.getAttribute&&ev.target.getAttribute("data-check");
+  if(c){ state.checks[c]=ev.target.checked; renderResults(); }
+});
+$("btnSave").addEventListener("click",function(){ saveEntry(false); });
+$("btnForce").addEventListener("click",function(){ saveEntry(true); });
+$("btnCoach").addEventListener("click",coachPlan);
+$("btnAsk").addEventListener("click",askTutor);
+$("journalList").addEventListener("click",onJournalClick);
+
+document.querySelectorAll("[data-split]").forEach(function(el){
+  var k=el.getAttribute("data-split");
+  el.value=state.split[k]==null?"":state.split[k];
+  el.addEventListener("input",function(){
+    state.split[k]=el.value;
+    if(k!=="profit"){ state.split.saved=false; }
+    saveGoals(); renderSplit(); renderReady();
+  });
+});
+document.querySelectorAll("[data-what]").forEach(function(el){
+  var k=el.getAttribute("data-what");
+  el.value=state.what[k]||"";
+  el.addEventListener("input",function(){ state.what[k]=el.value; saveGoals(); renderWhatIf(); });
+});
+$("btnSplitSave").addEventListener("click",function(){
+  state.split.saved=(splitTotal()===100);
+  saveGoals(); renderSplit(); renderReady();
+});
+$("btnJProfit").addEventListener("click",function(){
+  state.split.profit=String(monthProfit());
+  $("s-profit").value=state.split.profit;
+  saveGoals(); renderSplit();
+});
+$("readyBody").addEventListener("change",function(ev){
+  if(ev.target.hasAttribute&&ev.target.hasAttribute("data-money")){
+    state.money=ev.target.checked; saveGoals(); renderReady();
+  }
+});
+
+renderResults(); renderJournal(); renderGuard(); renderGoals(); updateAI();
+window.addEventListener("load",function(){ setTimeout(initAI,0); });
+})();
+</script>
+</body>
+</html>
